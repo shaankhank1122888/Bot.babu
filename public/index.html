@@ -1,0 +1,138 @@
+‎<!DOCTYPE html>
+‎<html lang="en">
+‎<head>
+‎    <meta charset="UTF-8">
+‎    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+‎    <title>Taha Messenger Bot Hosting</title>
+‎    <style>
+‎        body {
+‎            font-family: 'Segoe UI', sans-serif;
+‎            background: #0f172a;
+‎            color: #f8fafc;
+‎            margin: 0;
+‎            padding: 20px;
+‎            display: flex;
+‎            flex-direction: column;
+‎            align-items: center;
+‎        }
+‎        .container {
+‎            background: #1e293b;
+‎            padding: 30px;
+‎            border-radius: 16px;
+‎            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+‎            width: 90%;
+‎            max-width: 450px;
+‎            margin-bottom: 30px;
+‎        }
+‎        h1 { color: #38bdf8; text-align: center; font-size: 24px; margin-top: 0; }
+‎        label { display: block; margin: 10px 0 5px; color: #94a3b8; font-size: 14px; }
+‎        input, textarea {
+‎            width: 100%;
+‎            padding: 10px;
+‎            background: #0f172a;
+‎            border: 1px solid #334155;
+‎            border-radius: 8px;
+‎            color: white;
+‎            box-sizing: border-box;
+‎        }
+‎        textarea { height: 80px; font-family: monospace; font-size: 12px; }
+‎        button {
+‎            width: 100%;
+‎            padding: 12px;
+‎            background: #0284c7;
+‎            border: none;
+‎            border-radius: 8px;
+‎            color: white;
+‎            font-weight: bold;
+‎            font-size: 16px;
+‎            margin-top: 15px;
+‎            cursor: pointer;
+‎            transition: 0.2s;
+‎        }
+‎        button:hover { background: #0369a1; }
+‎        .bot-list {
+‎            width: 90%;
+‎            max-width: 450px;
+‎        }
+‎        .bot-card {
+‎            background: #1e293b;
+‎            padding: 15px;
+‎            border-radius: 10px;
+‎            margin-bottom: 10px;
+‎            display: flex;
+‎            justify-content: space-between;
+‎            align-items: center;
+‎            border-left: 5px solid #22c55e;
+‎        }
+‎        .bot-info h3 { margin: 0; color: #f1f5f9; font-size: 16px; }
+‎        .bot-info p { margin: 3px 0 0; color: #64748b; font-size: 13px; }
+‎        .status { color: #22c55e; font-weight: bold; }
+‎    </style>
+‎</head>
+‎<body>
+‎
+‎    <div class="container">
+‎        <h1>🚀 Taha Bot Hosting</h1>
+‎        <form id="botForm">
+‎            <label>Bot Name:</label>
+‎            <input type="text" id="botName" placeholder="e.g., Babu Bot" required>
+‎
+‎            <label>Prefix:</label>
+‎            <input type="text" id="prefix" placeholder="e.g., !" value="!" required>
+‎
+‎            <label>Owner Facebook UID:</label>
+‎            <input type="text" id="ownerUID" placeholder="e.g., 1000845348271" required>
+‎
+‎            <label>AppState (Cookies JSON):</label>
+‎            <textarea id="appStateString" placeholder='[{"key":"c_user","value":"..."}]' required></textarea>
+‎
+‎            <button type="submit">Run My Bot ⚡</button>
+‎        </form>
+‎    </div>
+‎
+‎    <div class="bot-list">
+‎        <h2 style="font-size: 18px; color: #38bdf8;">🟢 Active Bots Online</h2>
+‎        <div id="botsContainer"><!-- لائیو بوٹس یہاں شو ہوں گے --></div>
+‎    </div>
+‎
+‎    <script>
+‎        // فارم سبمٹ کرنے کا کوڈ
+‎        document.getElementById("botForm").addEventListener("submit", async (e) => {
+‎            e.preventDefault();
+‎            
+‎            const data = {
+‎                botName: document.getElementById("botName").value,
+‎                prefix: document.getElementById("prefix").value,
+‎                ownerUID: document.getElementById("ownerUID").value,
+‎                appStateString: document.getElementById("appStateString").value
+‎            };
+‎
+‎            try {
+‎                const response = await fetch("/api/start-bot", {
+‎                    method: "POST",
+‎                    headers: { "Content-Type": "application/json" },
+‎                    body: JSON.stringify(data)
+‎                });
+‎                const resData = await response.json();
+‎                alert(resData.message || resData.error);
+‎                if(resData.success) {
+‎                    document.getElementById("botForm").reset();
+‎                    loadActiveBots();
+‎                }
+‎            } catch (err) {
+‎                alert("سرور سے کنیکٹ کرنے میں مسئلہ آیا!");
+‎            }
+‎        });
+‎
+‎        // لائیو بوٹس کی لسٹ لوڈ کرنے کا فنکشن
+‎        async function loadActiveBots() {
+‎            try {
+‎                const res = await fetch("/api/active-bots");
+‎                const bots = await res.res = await res.json();
+‎                const container = document.getElementById("botsContainer");
+‎                container.innerHTML = "";
+‎
+‎                if(bots.length === 0) {
+‎                    container.innerHTML = "<p style='color: #64748b; font-size: 14px;'>ابھی کوئی بوٹ آن لائن نہیں ہے۔</p>";
+‎                    return;
+‎                }
